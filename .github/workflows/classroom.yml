@@ -1,0 +1,93 @@
+name: Autograding Tests
+'on':
+  push:
+  repository_dispatch:
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:   
+    runs-on: [self-hosted, oracle]
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    
+    # Cachear node_modules
+    - name: Cache node_modules
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Ejercicio 1 - Crear carpetas
+      id: ejercicio-1
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Ejercicio 1 - Crear carpetas
+        setup-command: ''
+        command: npm test tests/ejercicio/1-crear-carpetas.test.js
+        timeout: 30
+        max-score: 20
+    
+    - name: Ejercicio 2 - Punto de venta online
+      id: ejercicio-2
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Ejercicio 2 - Punto de venta online
+        setup-command: ''
+        command: npm test tests/ejercicio/2-crear-carpetas-punto-venta-online.test.js
+        timeout: 30
+        max-score: 20
+    
+    - name: Ejercicio 3 - Crear index
+      id: ejercicio-3
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Ejercicio 3 - Crear index
+        setup-command: ''
+        command: npm test tests/ejercicio/3-crear-index.test.js
+        timeout: 30
+        max-score: 20
+    
+    - name: Ejercicio 4 - Crear estudiantes
+      id: ejercicio-4
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Ejercicio 4 - Crear estudiantes
+        setup-command: ''
+        command: npm test tests/ejercicio/4-crear-estudiantes.test.js
+        timeout: 30
+        max-score: 20
+    
+    - name: Ejercicio 5 - Rutas de imágenes
+      id: ejercicio-5
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Ejercicio 5 - Rutas de imágenes
+        setup-command: ''
+        command: npm test tests/ejercicio/5-rutas-imagenes.test.js
+        timeout: 30
+        max-score: 20
+    
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        EJERCICIO-1_RESULTS: "${{steps.ejercicio-1.outputs.result}}"
+        EJERCICIO-2_RESULTS: "${{steps.ejercicio-2.outputs.result}}"
+        EJERCICIO-3_RESULTS: "${{steps.ejercicio-3.outputs.result}}"
+        EJERCICIO-4_RESULTS: "${{steps.ejercicio-4.outputs.result}}"
+        EJERCICIO-5_RESULTS: "${{steps.ejercicio-5.outputs.result}}"
+      with:
+        runners: ejercicio-1,ejercicio-2,ejercicio-3,ejercicio-4,ejercicio-5
